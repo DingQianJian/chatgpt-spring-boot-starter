@@ -1,0 +1,26 @@
+{
+  "groups": [
+    {
+      "name": "gpt.config",
+      "type": "com.dqj.config.ChatGptConfig",
+      "sourceType": "com.dqj.config.ChatGptConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "gpt.config.key",
+      "type": "java.lang.String",
+      "sourceType": "com.dqj.config.ChatGptConfig",
+      "description": "The access-token you got from openai.",
+      "defaultValue": ""
+    },
+    {
+      "name": "gpt.config.model",
+      "type": "java.lang.String",
+      "sourceType": "com.dqj.config.ChatGptConfig",
+      "description": "The model name of gpt. Choose one from the following list: [gpt-4, gpt-3.5-turbo]",
+      "defaultValue": "gpt-4"
+    }
+  ],
+  "hints": []
+}
