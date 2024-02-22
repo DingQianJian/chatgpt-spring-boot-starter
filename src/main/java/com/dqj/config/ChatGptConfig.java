@@ -11,6 +11,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ChatGptConfig {
     private ModelEnum model;
     private String key;
+    /**
+     * Indicating the assistant how to behave
+     */
+    private String behave;
+    /**
+     * context size
+     */
+    private int size;
 
     public void setModel(String model) {
         ModelEnum modelEnum = ModelEnum.getByModel(model);

@@ -20,6 +20,20 @@
       "sourceType": "com.dqj.config.ChatGptConfig",
       "description": "The model name of gpt. Choose one from the following list: [gpt-4, gpt-3.5-turbo]",
       "defaultValue": "gpt-4"
+    },
+    {
+      "name": "gpt.config.behave",
+      "type": "java.lang.String",
+      "sourceType": "com.dqj.config.ChatGptConfig",
+      "description": "Indicating the assistant how to behave.",
+      "defaultValue": "You are a helpful assistant."
+    },
+    {
+      "name": "gpt.config.size",
+      "type": "java.lang.String",
+      "sourceType": "com.dqj.config.ChatGptConfig",
+      "description": "Max context size.",
+      "defaultValue": 20
     }
   ],
   "hints": []

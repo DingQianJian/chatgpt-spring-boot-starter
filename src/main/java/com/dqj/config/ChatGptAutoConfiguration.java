@@ -7,18 +7,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
-@EnableConfigurationProperties(ChatGptConfig.class)
+@EnableConfigurationProperties({ChatGptConfig.class, RedisConfig.class})
 public class ChatGptAutoConfiguration {
 
     @Resource
     private ChatGptConfig chatGptConfig;
 
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
     @Bean
     @ConditionalOnMissingBean
     public ChatGptApiService chatGptApiService() {
-        return new ChatGptApiServiceImpl(chatGptConfig);
+        return new ChatGptApiServiceImpl(chatGptConfig, redisTemplate);
     }
 
 }
