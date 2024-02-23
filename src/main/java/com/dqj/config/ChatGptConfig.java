@@ -12,13 +12,13 @@ public class ChatGptConfig {
     private ModelEnum model;
     private String key;
     /**
-     * Indicating the assistant how to behave
-     */
-    private String behave;
-    /**
      * context size
      */
-    private int size;
+    private int size = 20;
+    /**
+     * expire time, minutes(default 60 min)
+     */
+    private int expire = 60;
 
     public void setModel(String model) {
         ModelEnum modelEnum = ModelEnum.getByModel(model);

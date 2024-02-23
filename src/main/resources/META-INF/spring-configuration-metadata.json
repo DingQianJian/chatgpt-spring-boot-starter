@@ -22,18 +22,18 @@
       "defaultValue": "gpt-4"
     },
     {
-      "name": "gpt.config.behave",
-      "type": "java.lang.String",
-      "sourceType": "com.dqj.config.ChatGptConfig",
-      "description": "Indicating the assistant how to behave.",
-      "defaultValue": "You are a helpful assistant."
-    },
-    {
       "name": "gpt.config.size",
       "type": "java.lang.String",
       "sourceType": "com.dqj.config.ChatGptConfig",
       "description": "Max context size.",
       "defaultValue": 20
+    },
+    {
+      "name": "gpt.config.expire",
+      "type": "int",
+      "sourceType": "com.dqj.config.ChatGptConfig",
+      "description": "Expire time (minute).",
+      "defaultValue": 60
     }
   ],
   "hints": []

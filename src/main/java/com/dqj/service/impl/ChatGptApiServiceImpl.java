@@ -7,16 +7,14 @@ import com.alibaba.fastjson2.JSON;
 import com.dqj.config.ChatGptConfig;
 import com.dqj.model.dto.ChatGptChatDTO;
 import com.dqj.model.vo.ChatGptChatVO;
+import com.dqj.model.vo.ChatVO;
 import com.dqj.service.ChatGptApiService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -33,10 +31,33 @@ public class ChatGptApiServiceImpl implements ChatGptApiService {
     }
 
     @Override
+    public ChatVO newChat(String userId, String chatId, String systemMessage) {
+        ChatVO chatVO = new ChatVO();
+        chatVO.setChatId(chatId);
+        chatVO.setUserId(userId);
+        String key = userId + "_" + chatId;
+        Long size = redisTemplate.opsForList().size(key);
+        if (size == null || size == 0) {
+            ChatGptChatDTO.Message message = new ChatGptChatDTO.Message();
+            message.setRole("system");
+            message.setContent(systemMessage);
+            String json = JSON.toJSONString(message);
+            redisTemplate.opsForList().rightPushAll(key, json);
+        }
+        redisTemplate.expire(key, config.getExpire(), TimeUnit.MINUTES);
+        return chatVO;
+    }
+
+    @Override
+    public void destroy(String userId, String chatId) {
+        String key = userId + "_" + chatId;
+        redisTemplate.delete(key);
+    }
+
+    @Override
     public String chat(String question) {
         HttpRequest post = HttpUtil.createPost("https://api.openai.com/v1/chat/completions");
-        post.header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + config.getKey());
+        post.header("Content-Type", "application/json").header("Authorization", "Bearer " + config.getKey());
         ChatGptChatDTO chatGptChatDTO = new ChatGptChatDTO();
         ChatGptChatDTO.Message message = new ChatGptChatDTO.Message();
         message.setRole("user");
@@ -57,8 +78,7 @@ public class ChatGptApiServiceImpl implements ChatGptApiService {
     @Override
     public String chat(List<ChatGptChatDTO.Message> messageList) {
         HttpRequest post = HttpUtil.createPost("https://api.openai.com/v1/chat/completions");
-        post.header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + config.getKey());
+        post.header("Content-Type", "application/json").header("Authorization", "Bearer " + config.getKey());
         ChatGptChatDTO chatGptChatDTO = new ChatGptChatDTO();
         chatGptChatDTO.setMessages(messageList);
         chatGptChatDTO.setModel(config.getModel());
@@ -74,32 +94,25 @@ public class ChatGptApiServiceImpl implements ChatGptApiService {
     }
 
     @Override
-    public String chat(String chatId, String userId, String question, boolean hasContext) {
+    public String chat(String userId, String chatId, String question, boolean hasContext) {
+        String key = userId + "_" + chatId;
         if (!hasContext) {
             return this.chat(question);
         }
         if (!StringUtils.hasLength(chatId) || !StringUtils.hasLength(userId)) {
             return "Error: chatId and userId cannot be null or blank!";
         }
-        List<Object> messageList;
-        String key = userId + "_" + chatId;
         ChatGptChatDTO.Message message = new ChatGptChatDTO.Message();
         message.setRole("user");
         message.setContent(question);
         Long size = redisTemplate.opsForList().size(key);
         if (size == null || size == 0) {
-            messageList = new ArrayList<>();
-            ChatGptChatDTO.Message systemMsg = new ChatGptChatDTO.Message();
-            systemMsg.setRole("system");
-            systemMsg.setContent(config.getBehave());
-            messageList.add(JSON.toJSONString(systemMsg));
-            redisTemplate.opsForList().rightPush(key, JSON.toJSONString(systemMsg));
-            size = 1L;
+            return "Please use newChat() API to start conversation.";
         }
         ChatGptChatDTO.Message userMsg = new ChatGptChatDTO.Message();
         userMsg.setRole("user");
         userMsg.setContent(question);
-        messageList = redisTemplate.opsForList().leftPop(key, size);
+        List<Object> messageList = redisTemplate.opsForList().leftPop(key, size);
         assert messageList != null;
         messageList.add(JSON.toJSONString(userMsg));
 
@@ -118,16 +131,13 @@ public class ChatGptApiServiceImpl implements ChatGptApiService {
         int messageSize = messageList.size();
         int configSize = config.getSize();
         if (messageSize > configSize) {
-            while (true) {
-                messageList.remove(0);
+            do {
+                messageList.remove(1);
                 messageSize = messageList.size();
-                if (messageSize <= configSize) {
-                    break;
-                }
-            }
+            } while (messageSize > configSize);
         }
         redisTemplate.opsForList().rightPushAll(key, messageList);
-        redisTemplate.expire(key, 30, TimeUnit.MINUTES);
+        redisTemplate.expire(key, config.getExpire(), TimeUnit.MINUTES);
         return answer;
     }
 }
