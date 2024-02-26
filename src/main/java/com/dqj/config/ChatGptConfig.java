@@ -14,18 +14,36 @@ public class ChatGptConfig {
     /**
      * context size
      */
-    private int size = 20;
+    private int size;
     /**
      * expire time, minutes(default 60 min)
      */
     private int expire = 60;
 
+    public void setSize(int size) {
+        if (size < 1) {
+            log.warn("[gpt-auto-configuration]: No effective value found. " +
+                    "Default size 20 will be used.");
+            size = 20;
+        }
+        this.size = size;
+    }
+
+    public void setExpire(int expire) {
+        if (expire < 1) {
+            log.warn("[gpt-auto-configuration]: No effective value found. " +
+                    "Default expire 60 minutes will be used.");
+            expire = 60;
+        }
+        this.expire = expire;
+    }
+
     public void setModel(String model) {
         ModelEnum modelEnum = ModelEnum.getByModel(model);
         if (modelEnum == null) {
-            log.warn("[gpt-auto-configuration]: there is not any adapted model named '{}' be found. " +
-                    "Default model 'GPT_4' will be loaded.", model);
-            modelEnum = ModelEnum.GPT_4;
+            log.warn("[gpt-auto-configuration]: There is not any adapted model named '{}' be found. " +
+                    "Default model 'GPT_35_TURBO' will be loaded.", model);
+            modelEnum = ModelEnum.GPT_35_TURBO;
         }
         this.model = modelEnum;
         log.info("[gpt-auto-configuration]: Model '{}' has been loaded.", this.model.getModel());
