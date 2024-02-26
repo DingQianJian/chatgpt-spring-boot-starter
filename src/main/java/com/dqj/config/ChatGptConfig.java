@@ -22,7 +22,7 @@ public class ChatGptConfig {
 
     public void setSize(int size) {
         if (size < 1) {
-            log.warn("[gpt-auto-configuration]: No effective value found. " +
+            log.info("[gpt-auto-configuration]: No effective value found. " +
                     "Default size 20 will be used.");
             size = 20;
         }
@@ -31,7 +31,7 @@ public class ChatGptConfig {
 
     public void setExpire(int expire) {
         if (expire < 1) {
-            log.warn("[gpt-auto-configuration]: No effective value found. " +
+            log.info("[gpt-auto-configuration]: No effective value found. " +
                     "Default expire 60 minutes will be used.");
             expire = 60;
         }
@@ -41,7 +41,7 @@ public class ChatGptConfig {
     public void setModel(String model) {
         ModelEnum modelEnum = ModelEnum.getByModel(model);
         if (modelEnum == null) {
-            log.warn("[gpt-auto-configuration]: There is not any adapted model named '{}' be found. " +
+            log.info("[gpt-auto-configuration]: There is not any adapted model named '{}' be found. " +
                     "Default model 'GPT_35_TURBO' will be loaded.", model);
             modelEnum = ModelEnum.GPT_35_TURBO;
         }
