@@ -9,12 +9,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Slf4j
 @ConfigurationProperties(prefix = "gpt.config")
 public class ChatGptConfig {
-    private ModelEnum model;
+    private ModelEnum model = ModelEnum.GPT_35_TURBO;
     private String key;
     /**
      * context size
      */
-    private int size;
+    private int size = 20;
     /**
      * expire time, minutes(default 60 min)
      */
